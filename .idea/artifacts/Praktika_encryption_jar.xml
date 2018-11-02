@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Praktika_encryption:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Praktika_encryption_jar</output-path>
+    <root id="archive" name="Praktika_encryption.jar">
+      <element id="module-output" name="Praktika_encryption" />
+    </root>
+  </artifact>
+</component>
