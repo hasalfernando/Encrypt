@@ -6,15 +6,17 @@ public class Encrypt {
     enum Directions {LEFT, RIGHT};
 
     private String message;
+    private String encryptedMessage;
     private String gamma;
     private Directions direct;
     private int bits;
 
-    Encrypt(String message,String gamma,Directions direct,int bits) {
-        this.message=message;
-        this.gamma=gamma;
-        this.direct=direct;
-        this.bits=bits;
+    Encrypt(String message, String gamma, Directions direct, int bits) {
+        this.message = message;
+        this.encryptedMessage="";
+        this.gamma = gamma;
+        this.direct = direct;
+        this.bits = bits;
     }
 
     private String gammingString(String message, String gamma) {
@@ -40,14 +42,14 @@ public class Encrypt {
     }
 
     private String shiftString(Directions direct, int bits, String message) {
-        String shiftedMessage="";
+        String shiftedMessage = "";
         switch (direct) {
             case LEFT: {
-                shiftedMessage = message.substring(message.length() - bits) + message.substring(0, message.length()-bits);
+                shiftedMessage = message.substring(message.length() - bits) + message.substring(0, message.length() - bits);
                 return shiftedMessage;
             }
             case RIGHT: {
-                shiftedMessage = message.substring(bits) + message.substring(0,bits);
+                shiftedMessage = message.substring(bits) + message.substring(0, bits);
                 return shiftedMessage;
             }
             default:
@@ -55,48 +57,7 @@ public class Encrypt {
         }
     }
 
-    private ArrayList<String> messageToArray(String message) {
-        int count=0;
-        String word="";
-        ArrayList<String> words=new ArrayList<>();
-        while (count<message.length()) {
-            while (count<message.length()) {
-                word+=message.charAt(count);
-                count++;
-            }
-            if(!word.isEmpty()){
-                words.add(word);
-            }
-            word="";
-            count++;
-        }
-        if(!word.isEmpty()) {
-            words.add(word);
-        }
-        return words;
-    }
-
-    private void gammingArray(ArrayList<String> words, String gamma) {
-        for (int i=0;i<words.size();i++) {
-            words.set(i, gammingString(words.get(i),gamma));
-        }
-    }
-
-    private String arrayToBinar(ArrayList<String> words) {
-        String binar = "";
-        for (int i = 0; i < words.size(); i++) {
-            for (int j = 0; j < words.get(i).length(); j++) {
-                int bin = words.get(i).charAt(j);
-                StringBuilder builder = new StringBuilder(Integer.toBinaryString(bin));
-                while (builder.length() != 7) {
-                    builder.insert(0, '0');
-                }
-                binar += builder.toString();
-            }
-        }
-        return binar;
-    }
-    /*private String messageToBinar(String message) {
+    private String messageToBinar(String message) {
         String binar = "";
         for (int i = 0; i < message.length(); i++) {
             int bin = message.charAt(i);
@@ -107,22 +68,6 @@ public class Encrypt {
             binar += builder.toString();
         }
         return binar;
-    }*/
-
-   private ArrayList<String> binaryToArray(String binary) {
-        ArrayList<String> words=new ArrayList<>();
-        String word="";
-        for (int i=0;i<binary.length();i++) {
-            if(i%7==0&&i!=0) {
-                words.add(word);
-                word="";
-                word+=binary.charAt(i);
-            } else {
-                word+=binary.charAt(i);
-            }
-        }
-        words.add(word);
-        return words;
     }
 
     private String binaryToString(String binary) {
@@ -131,95 +76,67 @@ public class Encrypt {
         String message = "";
         for (int i = 0; i < binary.length(); i++) {
             if (i % 7 == 0 && i != 0) {
-                if(!word.isEmpty()) {
-                    System.out.println(word);
-                    message += (char) Integer.parseInt(word, 2);
-                }
+                message += (char) Integer.parseInt(word, 2);
                 word = "";
                 word += binary.charAt(i);
             } else {
                 word += binary.charAt(i);
             }
         }
+        message += (char) Integer.parseInt(word, 2);
         return message;
     }
 
-    private void changeArray(ArrayList<String> words,ArrayList<String> symbols) {
-        String word="";
-        int count=0;
-        for(int i=0;i<words.size();i++) {
-            for(int j=0;j<words.get(i).length();j++) {
-                word+=(char)Integer.parseInt(symbols.get(count),2);
-                count++;
+    public String encrypt() {
+        encryptedMessage=binaryToString(shiftString(direct, bits, messageToBinar(gammingString(message, gamma))));
+        return encryptedMessage;
+    }
+
+    public String de_encrypt() {
+        String unEncryptString;
+        if(!encryptedMessage.isEmpty()){
+            Directions newDirect;
+            if (direct == Directions.LEFT) {
+                newDirect = Directions.RIGHT;
+            } else {
+                newDirect = Directions.LEFT;
             }
-            words.set(i,word);
-            word="";
-        }
-    }
-
-   private String arrayToMessage(ArrayList<String> words) {
-        String message="";
-        for(int i=0;i<words.size();i++) {
-            message+=words.get(i);
-        }
-        return message;
-    }
-
-    public void encrypt () {
-        /*message=gammingString(message,gamma);
-        System.out.println(message);
-        message= binaryToString(shiftString(direct,bits,messageToBinar(message)));
-        System.out.println(message);*/
-        ArrayList<String> words = messageToArray(message);
-        gammingArray(words, gamma);
-        ArrayList<String> shiftSymbols = binaryToArray(shiftString(direct, bits, arrayToBinar(words)));
-        changeArray(words, shiftSymbols);
-        message= arrayToMessage(words);
-        System.out.println(message);
-    }
-    public void de_encrypt () {
-        Directions newDirect;
-        if (direct == Directions.LEFT) {
-            newDirect = Directions.RIGHT;
+            unEncryptString = gammingString(binaryToString(shiftString(newDirect, bits, messageToBinar(encryptedMessage))), gamma);
+            return unEncryptString;
         } else {
-            newDirect = Directions.LEFT;
+            return "Сообщение не закадировано";
         }
-        ArrayList<String> words = messageToArray(message);
-        ArrayList<String> shiftSymbols = new ArrayList<>();
-        shiftSymbols = binaryToArray(shiftString(newDirect, bits, arrayToBinar(words)));
-        changeArray(words, shiftSymbols);
-        gammingArray(words, gamma);
-        message = arrayToMessage(words);
-        System.out.println(message);
-       /* Directions newDirect;
-        if (direct == Directions.LEFT) {
-            newDirect = Directions.RIGHT;
-        } else {
-            newDirect = Directions.LEFT;
-        }
-        message= binaryToString(shiftString(direct,bits,messageToBinar(message)));
-        message=gammingString(message,gamma);
-        System.out.println(message);*/
     }
 
     public void howDoYouWork() {
-        ArrayList<String> words = messageToArray(message);
-        System.out.println("1) Берется сообщение и разделяется на массив слов\n" +
-                "Из"+message+" получается "+words);
-        gammingArray(words,gamma);
-        System.out.println("2) Далее этот массив слов гаммируется с помощью ключа\n" +
-                "Из"+messageToArray(message)+" получается "+words);
-        ArrayList<String> shiftSymbols = binaryToArray(shiftString(direct, bits, arrayToBinar(words)));
-        System.out.println("3) Далее массив переводится в бинарное представление(для символов бинарная форма которого меьнше 7 дописываются вначале 0)\n" +
-                "Из"+ words+" получается "+arrayToBinar(words));
-        System.out.println("4) Далее бинарное представление сдвигается по битам\n" +
-                "Из"+ arrayToBinar(words)+" получается "+shiftString(direct,bits,arrayToBinar(words)));
-        System.out.println("5) Далее бинарное представление со сдвигом делится на массив символов\n" +
-                "Из"+shiftString(direct,bits,arrayToBinar(words))+" получается "+shiftSymbols);
-        changeArray(words, shiftSymbols);
-        System.out.println("6) Далее из массива символв с помощью гаммированного массива мы формируем зашифрованный массив \n" +
-                "Из"+shiftSymbols+" получается "+ words);
-        System.out.println("7) Зашифрованный массив переводится в строку\n" +
-                "Из"+ words+" получается "+arrayToMessage(words));
+        if (!encryptedMessage.isEmpty()) {
+            Directions newDirect;
+            if (direct == Directions.LEFT) {
+                newDirect = Directions.RIGHT;
+            } else {
+                newDirect = Directions.LEFT;
+            }
+            System.out.println("Процесс кодирования");
+            System.out.println("1) Берется сообщение и гаммирутеся с помощью ключа \n" +
+                    "Из " + message + " получается " + gammingString(message, gamma));
+            System.out.println("2) Далее cообщение переводится в бинарное представление(для символов бинарная форма которого содержит меньше 7 знаков дописываются вначале 0)\n" +
+                    "Из " + gammingString(message, gamma) + " получается " + messageToBinar(gammingString(message, gamma)));
+            System.out.println("3) Далее бинарное представление сдвигается по битам\n" +
+                    "Из " + messageToBinar(gammingString(message, gamma)) + " получается " + shiftString(direct, bits, messageToBinar(gammingString(message, gamma))));
+            System.out.println("4) Далее бинарное представление со сдвигом переводится обратно в символы\n" +
+                    "Из " + shiftString(direct, bits, messageToBinar(gammingString(message, gamma))) + " получается " + binaryToString(shiftString(direct, bits, messageToBinar(gammingString(message, gamma)))));
+            System.out.println("Процесс декодирования");
+            System.out.println("1) Берется зашифорваное сообщение и переводится в бинарное представление \n" +
+                    "Из " + binaryToString(shiftString(direct, bits, messageToBinar(gammingString(message, gamma)))) + " получается " + messageToBinar(encryptedMessage));
+            System.out.println("2) Далее бинарное представление сдвигаетя в обрную сторону(в зависимотси от стороны сдвига во время кодирования)\n" +
+                    "Из " + messageToBinar(encryptedMessage) + " получается " + shiftString(newDirect, bits, messageToBinar(encryptedMessage)));
+            System.out.println("3) Далее бинарное представление переводится обратно в символы\n" +
+                    "Из " + shiftString(newDirect, bits, messageToBinar(encryptedMessage)) + " получается " + binaryToString(shiftString(newDirect, bits, messageToBinar(encryptedMessage))));
+            System.out.println("4) Символы гаммируются с помощью исходного ключа\n" +
+                    "Из " + binaryToString(shiftString(newDirect, bits, messageToBinar(encryptedMessage))) + " получается " + gammingString(binaryToString(shiftString(newDirect, bits, messageToBinar(encryptedMessage))), gamma));
+        }
+        else {
+            System.out.println("Сообщение не закадированно");
+        }
     }
 }
