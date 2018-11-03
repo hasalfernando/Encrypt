@@ -3,17 +3,17 @@ package com.company;
 import java.util.ArrayList;
 
 public class Encrypt {
-    enum Directions {LEFT, RIGHT};
+    enum Directions {LEFT, RIGHT}
+
+    ;
 
     private String message;
-    private String encryptedMessage;
     private String gamma;
     private Directions direct;
     private int bits;
 
     Encrypt(String message, String gamma, Directions direct, int bits) {
         this.message = message;
-        this.encryptedMessage="";
         this.gamma = gamma;
         this.direct = direct;
         this.bits = bits;
@@ -88,55 +88,48 @@ public class Encrypt {
     }
 
     public String encrypt() {
-        encryptedMessage=binaryToString(shiftString(direct, bits, messageToBinar(gammingString(message, gamma))));
-        return encryptedMessage;
+        message = binaryToString(shiftString(direct, bits, messageToBinar(gammingString(message, gamma))));
+        return message;
     }
 
-    public String de_encrypt() {
-        String unEncryptString;
-        if(!encryptedMessage.isEmpty()){
-            Directions newDirect;
-            if (direct == Directions.LEFT) {
-                newDirect = Directions.RIGHT;
-            } else {
-                newDirect = Directions.LEFT;
-            }
-            unEncryptString = gammingString(binaryToString(shiftString(newDirect, bits, messageToBinar(encryptedMessage))), gamma);
-            return unEncryptString;
+    public String unEncrypt() {
+        Directions newDirect;
+        if (direct == Directions.LEFT) {
+            newDirect = Directions.RIGHT;
         } else {
-            return "Сообщение не закадировано";
+            newDirect = Directions.LEFT;
         }
+        message = gammingString(binaryToString(shiftString(newDirect, bits, messageToBinar(message))), gamma);
+        return message;
     }
 
     public void howDoYouWork() {
-        if (!encryptedMessage.isEmpty()) {
-            Directions newDirect;
-            if (direct == Directions.LEFT) {
-                newDirect = Directions.RIGHT;
-            } else {
-                newDirect = Directions.LEFT;
-            }
-            System.out.println("Процесс кодирования");
-            System.out.println("1) Берется сообщение и гаммирутеся с помощью ключа \n" +
-                    "Из " + message + " получается " + gammingString(message, gamma));
-            System.out.println("2) Далее cообщение переводится в бинарное представление(для символов бинарная форма которого содержит меньше 7 знаков дописываются вначале 0)\n" +
-                    "Из " + gammingString(message, gamma) + " получается " + messageToBinar(gammingString(message, gamma)));
-            System.out.println("3) Далее бинарное представление сдвигается по битам\n" +
-                    "Из " + messageToBinar(gammingString(message, gamma)) + " получается " + shiftString(direct, bits, messageToBinar(gammingString(message, gamma))));
-            System.out.println("4) Далее бинарное представление со сдвигом переводится обратно в символы\n" +
-                    "Из " + shiftString(direct, bits, messageToBinar(gammingString(message, gamma))) + " получается " + binaryToString(shiftString(direct, bits, messageToBinar(gammingString(message, gamma)))));
-            System.out.println("Процесс декодирования");
-            System.out.println("1) Берется зашифорваное сообщение и переводится в бинарное представление \n" +
-                    "Из " + binaryToString(shiftString(direct, bits, messageToBinar(gammingString(message, gamma)))) + " получается " + messageToBinar(encryptedMessage));
-            System.out.println("2) Далее бинарное представление сдвигаетя в обрную сторону(в зависимотси от стороны сдвига во время кодирования)\n" +
-                    "Из " + messageToBinar(encryptedMessage) + " получается " + shiftString(newDirect, bits, messageToBinar(encryptedMessage)));
-            System.out.println("3) Далее бинарное представление переводится обратно в символы\n" +
-                    "Из " + shiftString(newDirect, bits, messageToBinar(encryptedMessage)) + " получается " + binaryToString(shiftString(newDirect, bits, messageToBinar(encryptedMessage))));
-            System.out.println("4) Символы гаммируются с помощью исходного ключа\n" +
-                    "Из " + binaryToString(shiftString(newDirect, bits, messageToBinar(encryptedMessage))) + " получается " + gammingString(binaryToString(shiftString(newDirect, bits, messageToBinar(encryptedMessage))), gamma));
+        Directions newDirect;
+        String inputMessage = message;
+        if (direct == Directions.LEFT) {
+            newDirect = Directions.RIGHT;
+        } else {
+            newDirect = Directions.LEFT;
         }
-        else {
-            System.out.println("Сообщение не закадированно");
-        }
+        System.out.println("Процесс кодирования");
+        System.out.println("1) Берется сообщение и гаммирутеся с помощью ключа \n" +
+                "Из " + message + " получается " + gammingString(message, gamma));
+        System.out.println("2) Далее cообщение переводится в бинарное представление(для символов бинарная форма которого содержит меньше 7 знаков дописываются вначале 0)\n" +
+                "Из " + gammingString(message, gamma) + " получается " + messageToBinar(gammingString(message, gamma)));
+        System.out.println("3) Далее бинарное представление сдвигается по битам\n" +
+                "Из " + messageToBinar(gammingString(message, gamma)) + " получается " + shiftString(direct, bits, messageToBinar(gammingString(message, gamma))));
+        System.out.println("4) Далее бинарное представление со сдвигом переводится обратно в символы\n" +
+                "Из " + shiftString(direct, bits, messageToBinar(gammingString(message, gamma))) + " получается " + binaryToString(shiftString(direct, bits, messageToBinar(gammingString(message, gamma)))));
+        message = binaryToString(shiftString(direct, bits, messageToBinar(gammingString(message, gamma))));
+        System.out.println("Процесс декодирования");
+        System.out.println("1) Берется зашифорваное сообщение и переводится в бинарное представление \n" +
+                "Из " + message + " получается " + messageToBinar(message));
+        System.out.println("2) Далее бинарное представление сдвигаетя в обрную сторону(в зависимотси от стороны сдвига во время кодирования)\n" +
+                "Из " + messageToBinar(message) + " получается " + shiftString(newDirect, bits, messageToBinar(message)));
+        System.out.println("3) Далее бинарное представление переводится обратно в символы\n" +
+                "Из " + shiftString(newDirect, bits, messageToBinar(message)) + " получается " + binaryToString(shiftString(newDirect, bits, messageToBinar(message))));
+        System.out.println("4) Символы гаммируются с помощью исходного ключа\n" +
+                "Из " + binaryToString(shiftString(newDirect, bits, messageToBinar(message))) + " получается " + gammingString(binaryToString(shiftString(newDirect, bits, messageToBinar(message))), gamma));
+        message = gammingString(binaryToString(shiftString(newDirect, bits, messageToBinar(message))), gamma);
     }
 }
